@@ -8,6 +8,7 @@ postsubmits:
     decoration_config:
       skip_cloning: true
     labels:
+      ci-operator.openshift.io/is-promotion: "true"
       ci-operator.openshift.io/prowgen-controlled: "true"
     max_concurrency: 1
     name: branch-ci-openshift-tektoncd-pipeline-release-v0.11.0-rc2-images
@@ -15,11 +16,11 @@ postsubmits:
     spec:
       containers:
       - args:
-        - --artifact-dir=$(ARTIFACTS)
-        - --give-pr-author-access-to-namespace=true
         - --image-import-pull-secret=/etc/pull-secret/.dockerconfigjson
         - --kubeconfig=/etc/apici/kubeconfig
         - --promote
+        - --report-password-file=/etc/report/password.txt
+        - --report-username=ci
         - --target=[images]
         command:
         - ci-operator
@@ -36,6 +37,9 @@ postsubmits:
         - mountPath: /etc/pull-secret
           name: pull-secret
           readOnly: true
+        - mountPath: /etc/report
+          name: result-aggregator
+          readOnly: true
       serviceAccountName: ci-operator
       volumes:
       - name: apici-ci-operator-credentials
@@ -47,6 +51,9 @@ postsubmits:
       - name: pull-secret
         secret:
           secretName: regcred
+      - name: result-aggregator
+        secret:
+          secretName: result-aggregator
   - agent: kubernetes
     branches:
     - ^release-v0\.11\.0-rc2$
@@ -55,6 +62,7 @@ postsubmits:
     decoration_config:
       skip_cloning: true
     labels:
+      ci-operator.openshift.io/is-promotion: "true"
       ci-operator.openshift.io/prowgen-controlled: "true"
       ci-operator.openshift.io/variant: variant
     max_concurrency: 1
@@ -63,11 +71,11 @@ postsubmits:
     spec:
       containers:
       - args:
-        - --artifact-dir=$(ARTIFACTS)
-        - --give-pr-author-access-to-namespace=true
         - --image-import-pull-secret=/etc/pull-secret/.dockerconfigjson
         - --kubeconfig=/etc/apici/kubeconfig
         - --promote
+        - --report-password-file=/etc/report/password.txt
+        - --report-username=ci
         - --target=[images]
         - --variant=variant
         command:
@@ -85,6 +93,9 @@ postsubmits:
         - mountPath: /etc/pull-secret
           name: pull-secret
           readOnly: true
+        - mountPath: /etc/report
+          name: result-aggregator
+          readOnly: true
       serviceAccountName: ci-operator
       volumes:
       - name: apici-ci-operator-credentials
@@ -96,3 +107,6 @@ postsubmits:
       - name: pull-secret
         secret:
           secretName: regcred
+      - name: result-aggregator
+        secret:
+          secretName: result-aggregator

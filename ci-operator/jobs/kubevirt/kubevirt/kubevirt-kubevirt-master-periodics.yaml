@@ -17,13 +17,11 @@ periodics:
   spec:
     containers:
     - args:
-      - --artifact-dir=$(ARTIFACTS)
-      - --give-pr-author-access-to-namespace=true
       - --image-import-pull-secret=/etc/pull-secret/.dockerconfigjson
       - --kubeconfig=/etc/apici/kubeconfig
       - --lease-server-password-file=/etc/boskos/password
-      - --lease-server-username=ci
-      - --lease-server=https://boskos-ci.svc.ci.openshift.org
+      - --report-password-file=/etc/report/password.txt
+      - --report-username=ci
       - --secret-dir=/usr/local/e2e-periodic-gcp-nested-virt-cluster-profile
       - --target=e2e-periodic-gcp-nested-virt
       - --template=/usr/local/e2e-periodic-gcp-nested-virt
@@ -92,6 +90,9 @@ periodics:
       - mountPath: /etc/pull-secret
         name: pull-secret
         readOnly: true
+      - mountPath: /etc/report
+        name: result-aggregator
+        readOnly: true
     serviceAccountName: ci-operator
     volumes:
     - name: apici-ci-operator-credentials
@@ -119,3 +120,6 @@ periodics:
     - name: pull-secret
       secret:
         secretName: regcred
+    - name: result-aggregator
+      secret:
+        secretName: result-aggregator
